@@ -122,111 +122,166 @@ if (document.querySelector('.fixed-plugin')) {
 
 //Set Sidebar Color
 function sidebarColor(a) {
-  var parent = document.querySelector(".nav-link.active");
-  var color = a.getAttribute("data-color");
+    var parent = document.querySelector(".nav-link.active");
+    var color = a.getAttribute("data-color");
 
-  if (parent.classList.contains('bg-gradient-primary')) {
-    parent.classList.remove('bg-gradient-primary');
-  }
-  if (parent.classList.contains('bg-gradient-dark')) {
-    parent.classList.remove('bg-gradient-dark');
-  }
-  if (parent.classList.contains('bg-gradient-info')) {
-    parent.classList.remove('bg-gradient-info');
-  }
-  if (parent.classList.contains('bg-gradient-success')) {
-    parent.classList.remove('bg-gradient-success');
-  }
-  if (parent.classList.contains('bg-gradient-warning')) {
-    parent.classList.remove('bg-gradient-warning');
-  }
-  if (parent.classList.contains('bg-gradient-danger')) {
-    parent.classList.remove('bg-gradient-danger');
-  }
-  parent.classList.add('bg-gradient-' + color);
+    // Remove existing color classes
+    parent.classList.remove('bg-gradient-primary', 'bg-gradient-dark', 'bg-gradient-info', 'bg-gradient-success', 'bg-gradient-warning', 'bg-gradient-danger');
+
+    // Add the new color class
+    parent.classList.add('bg-gradient-' + color);
+
+    // Save the selected color to localStorage
+    localStorage.setItem('sidebarColor', color);
+}
+
+// Function to apply the saved color on page load
+function applySavedColor() {
+    var savedColor = localStorage.getItem('sidebarColor');
+    var parent = document.querySelector(".nav-link.active");
+    // If a color is saved, apply it
+    if (savedColor && parent) {
+        parent.classList.remove('bg-gradient-primary', 'bg-gradient-dark',
+            'bg-gradient-info', 'bg-gradient-success',
+            'bg-gradient-warning', 'bg-gradient-danger');
+        parent.classList.add('bg-gradient-' + savedColor);
+        // Debugging: Print the classes of the parent element
+        console.log("Current classes:", parent.classList);
+    } else {
+        console.log("No color saved or parent element not found.");
+    }
 }
 
 // Set Sidebar Type
 function sidebarType(a) {
-  var parent = a.parentElement.children;
-  var color = a.getAttribute("data-class");
-  var body = document.querySelector("body");
-  var bodyWhite = document.querySelector("body:not(.dark-version)");
-  var bodyDark = body.classList.contains('dark-version');
+    var parent = a.parentElement.children;
+    var color = a.getAttribute("data-class");
+    var body = document.querySelector("body");
+    var bodyWhite = document.querySelector("body:not(.dark-version)");
+    var bodyDark = body.classList.contains('dark-version');
 
-  var colors = [];
+    var colors = [];
 
-  for (var i = 0; i < parent.length; i++) {
-    parent[i].classList.remove('active');
-    colors.push(parent[i].getAttribute('data-class'));
-  }
-
-  if (!a.classList.contains('active')) {
-    a.classList.add('active');
-  } else {
-    a.classList.remove('active');
-  }
-
-  var sidebar = document.querySelector('.sidenav');
-
-  for (var i = 0; i < colors.length; i++) {
-    sidebar.classList.remove(colors[i]);
-  }
-
-  sidebar.classList.add(color);
-
-
-  // Remove text-white/text-dark classes
-  if (color == 'bg-transparent' || color == 'bg-white') {
-    var textWhites = document.querySelectorAll('.sidenav .text-white:not(.nav-link-text):not(.active)');
-    for (let i = 0; i < textWhites.length; i++) {
-      textWhites[i].classList.remove('text-white');
-      textWhites[i].classList.add('text-dark');
+    for (var i = 0; i < parent.length; i++) {
+      parent[i].classList.remove('active');
+      colors.push(parent[i].getAttribute('data-class'));
     }
-  } else {
-    var textDarks = document.querySelectorAll('.sidenav .text-dark');
-    for (let i = 0; i < textDarks.length; i++) {
-      textDarks[i].classList.add('text-white');
-      textDarks[i].classList.remove('text-dark');
+
+    if (!a.classList.contains('active')) {
+      a.classList.add('active');
+    } else {
+      a.classList.remove('active');
+    }
+
+    var sidebar = document.querySelector('.sidenav');
+
+    for (var i = 0; i < colors.length; i++) {
+      sidebar.classList.remove(colors[i]);
+    }
+
+    sidebar.classList.add(color);
+
+    // Save the selected sidebar type to localStorage
+    localStorage.setItem('sidebarType', color);
+
+    // Remove text-white/text-dark classes
+    if (color == 'bg-transparent' || color == 'bg-white') {
+      var textWhites = document.querySelectorAll('.sidenav .text-white:not(.nav-link-text):not(.active)');
+      for (let i = 0; i < textWhites.length; i++) {
+        textWhites[i].classList.remove('text-white');
+        textWhites[i].classList.add('text-dark');
+      }
+    } else {
+      var textDarks = document.querySelectorAll('.sidenav .text-dark');
+      for (let i = 0; i < textDarks.length; i++) {
+        textDarks[i].classList.add('text-white');
+        textDarks[i].classList.remove('text-dark');
+      }
+    }
+
+    if (color == 'bg-transparent' && bodyDark) {
+      var textDarks = document.querySelectorAll('.navbar-brand .text-dark');
+      for (let i = 0; i < textDarks.length; i++) {
+        textDarks[i].classList.add('text-white');
+        textDarks[i].classList.remove('text-dark');
+      }
+    }
+
+    // Remove logo-white/logo-dark
+    if ((color == 'bg-transparent' || color == 'bg-white') && bodyWhite) {
+      var navbarBrand = document.querySelector('.navbar-brand-img');
+      var navbarBrandImg = navbarBrand.src;
+
+      if (navbarBrandImg.includes('whitelandscape.png')) {
+        var navbarBrandImgNew = navbarBrandImg.replace("whitelandscape", "transparentlandscape");
+        navbarBrand.src = navbarBrandImgNew;
+      }
+    } else {
+        console.log("nah ini dark")
+      var navbarBrand = document.querySelector('.navbar-brand-img');
+      var navbarBrandImg = navbarBrand.src;
+      if (navbarBrandImg.includes('whitelandscape.png')) {
+        var navbarBrandImgNew = navbarBrandImg.replace("whitelandscape", "transparentlandscape");
+        navbarBrand.src = navbarBrandImgNew;
+      }
+    }
+
+    if (color == 'bg-white' && bodyDark) {
+      var navbarBrand = document.querySelector('.navbar-brand-img');
+      var navbarBrandImg = navbarBrand.src;
+
+      if (navbarBrandImg.includes('whitelandscape.png')) {
+        var navbarBrandImgNew = navbarBrandImg.replace("whitelandscape", "transparentlandscape");
+        navbarBrand.src = navbarBrandImgNew;
+      }
     }
   }
 
-  if (color == 'bg-transparent' && bodyDark) {
-    var textDarks = document.querySelectorAll('.navbar-brand .text-dark');
-    for (let i = 0; i < textDarks.length; i++) {
-      textDarks[i].classList.add('text-white');
-      textDarks[i].classList.remove('text-dark');
+ // Function to apply the saved sidebar type on page load
+function applySavedSidebarType() {
+    var savedType = localStorage.getItem('sidebarType');
+    var sidebar = document.querySelector('.sidenav');
+    var parent = document.querySelectorAll('[data-class]'); // Assuming you have elements with data-class attribute
+    var body = document.querySelector("body");
+    var bodyDark = body.classList.contains('dark-version');
+
+    // If a type is saved, apply it
+    if (savedType && sidebar) {
+        sidebar.classList.add(savedType);
+
+        // Mark the corresponding button as active
+        parent.forEach(function(item) {
+            if (item.getAttribute('data-class') === savedType) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        // Change text color based on saved type
+        if (savedType == 'bg-transparent' || savedType == 'bg-white') {
+            var textWhites = document.querySelectorAll('.sidenav .text-white:not(.nav-link-text):not(.active)');
+            for (let i = 0; i < textWhites.length; i++) {
+                textWhites[i].classList.remove('text-white');
+                textWhites[i].classList.add('text-dark');
+            }
+        } else {
+            var textDarks = document.querySelectorAll('.sidenav .text-dark');
+            for (let i = 0; i < textDarks.length; i++) {
+                textDarks[i].classList.add('text-white');
+                textDarks[i].classList.remove('text-dark');
+            }
+        }
+
+        // Ensure all text is white in dark mode
+        if (bodyDark) {
+            var allText = document.querySelectorAll('.sidenav .text-dark');
+            for (let i = 0; i < allText.length; i++) {
+                allText[i].classList.add('text-white');
+                allText[i].classList.remove('text-dark');
+            }
+        }
     }
-  }
-
-  // Remove logo-white/logo-dark
-
-  if ((color == 'bg-transparent' || color == 'bg-white') && bodyWhite) {
-    var navbarBrand = document.querySelector('.navbar-brand-img');
-    var navbarBrandImg = navbarBrand.src;
-
-    if (navbarBrandImg.includes('logo-ct.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
-      navbarBrand.src = navbarBrandImgNew;
-    }
-  } else {
-    var navbarBrand = document.querySelector('.navbar-brand-img');
-    var navbarBrandImg = navbarBrand.src;
-    if (navbarBrandImg.includes('logo-ct-dark.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct-dark", "logo-ct");
-      navbarBrand.src = navbarBrandImgNew;
-    }
-  }
-
-  if (color == 'bg-white' && bodyDark) {
-    var navbarBrand = document.querySelector('.navbar-brand-img');
-    var navbarBrandImg = navbarBrand.src;
-
-    if (navbarBrandImg.includes('logo-ct.png')) {
-      var navbarBrandImgNew = navbarBrandImg.replace("logo-ct", "logo-ct-dark");
-      navbarBrand.src = navbarBrandImgNew;
-    }
-  }
 }
 
 // Set Navbar Fixed
@@ -654,162 +709,11 @@ function sidenavTypeOnResize() {
 }
 
 
-// Light Mode / Dark Mode
-function darkMode(el) {
-  const body = document.getElementsByTagName('body')[0];
-  const hr = document.querySelectorAll('div:not(.sidenav) > hr');
-  const hr_card = document.querySelectorAll('div:not(.bg-gradient-dark) hr');
-  const text_btn = document.querySelectorAll('button:not(.btn) > .text-dark');
-  const text_span = document.querySelectorAll('span.text-dark, .breadcrumb .text-dark');
-  const text_span_white = document.querySelectorAll('span.text-white, .breadcrumb .text-white');
-  const text_strong = document.querySelectorAll('strong.text-dark');
-  const text_strong_white = document.querySelectorAll('strong.text-white');
-  const text_nav_link = document.querySelectorAll('a.nav-link.text-dark');
-  const text_nav_link_white = document.querySelectorAll('a.nav-link.text-white');
-  const secondary = document.querySelectorAll('.text-secondary');
-  const bg_gray_100 = document.querySelectorAll('.bg-gray-100');
-  const bg_gray_600 = document.querySelectorAll('.bg-gray-600');
-  const btn_text_dark = document.querySelectorAll('.btn.btn-link.text-dark, .material-symbols-rounded.text-dark');
-  const btn_text_white = document.querySelectorAll('.btn.btn-link.text-white, .material-symbols-rounded.text-white');
-  const card_border = document.querySelectorAll('.card.border');
-  const card_border_dark = document.querySelectorAll('.card.border.border-dark');
-
-  const svg = document.querySelectorAll('g');
-
-  if (!el.getAttribute("checked")) {
-    body.classList.add('dark-version');
-    for (var i = 0; i < hr.length; i++) {
-      if (hr[i].classList.contains('dark')) {
-        hr[i].classList.remove('dark');
-        hr[i].classList.add('light');
-      }
-    }
-
-    for (var i = 0; i < hr_card.length; i++) {
-      if (hr_card[i].classList.contains('dark')) {
-        hr_card[i].classList.remove('dark');
-        hr_card[i].classList.add('light');
-      }
-    }
-    for (var i = 0; i < text_btn.length; i++) {
-      if (text_btn[i].classList.contains('text-dark')) {
-        text_btn[i].classList.remove('text-dark');
-        text_btn[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_span.length; i++) {
-      if (text_span[i].classList.contains('text-dark')) {
-        text_span[i].classList.remove('text-dark');
-        text_span[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_strong.length; i++) {
-      if (text_strong[i].classList.contains('text-dark')) {
-        text_strong[i].classList.remove('text-dark');
-        text_strong[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < text_nav_link.length; i++) {
-      if (text_nav_link[i].classList.contains('text-dark')) {
-        text_nav_link[i].classList.remove('text-dark');
-        text_nav_link[i].classList.add('text-white');
-      }
-    }
-    for (var i = 0; i < secondary.length; i++) {
-      if (secondary[i].classList.contains('text-secondary')) {
-        secondary[i].classList.remove('text-secondary');
-        secondary[i].classList.add('text-white');
-        secondary[i].classList.add('opacity-8');
-      }
-    }
-    for (var i = 0; i < bg_gray_100.length; i++) {
-      if (bg_gray_100[i].classList.contains('bg-gray-100')) {
-        bg_gray_100[i].classList.remove('bg-gray-100');
-        bg_gray_100[i].classList.add('bg-gray-600');
-      }
-    }
-    for (var i = 0; i < btn_text_dark.length; i++) {
-      btn_text_dark[i].classList.remove('text-dark');
-      btn_text_dark[i].classList.add('text-white');
-    }
-    for (var i = 0; i < svg.length; i++) {
-      if (svg[i].hasAttribute('fill')) {
-        svg[i].setAttribute('fill', '#fff');
-      }
-    }
-    for (var i = 0; i < card_border.length; i++) {
-      card_border[i].classList.add('border-dark');
-    }
-    el.setAttribute("checked", "true");
-  } else {
-    body.classList.remove('dark-version');
-    for (var i = 0; i < hr.length; i++) {
-      if (hr[i].classList.contains('light')) {
-        hr[i].classList.add('dark');
-        hr[i].classList.remove('light');
-      }
-    }
-    for (var i = 0; i < hr_card.length; i++) {
-      if (hr_card[i].classList.contains('light')) {
-        hr_card[i].classList.add('dark');
-        hr_card[i].classList.remove('light');
-      }
-    }
-    for (var i = 0; i < text_btn.length; i++) {
-      if (text_btn[i].classList.contains('text-white')) {
-        text_btn[i].classList.remove('text-white');
-        text_btn[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_span_white.length; i++) {
-      if (text_span_white[i].classList.contains('text-white') && !text_span_white[i].closest('.sidenav') && !text_span_white[i].closest('.card.bg-gradient-dark')) {
-        text_span_white[i].classList.remove('text-white');
-        text_span_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_strong_white.length; i++) {
-      if (text_strong_white[i].classList.contains('text-white')) {
-        text_strong_white[i].classList.remove('text-white');
-        text_strong_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < text_nav_link_white.length; i++) {
-      if (text_nav_link_white[i].classList.contains('text-white') && !text_nav_link_white[i].closest('.sidenav')) {
-        text_nav_link_white[i].classList.remove('text-white');
-        text_nav_link_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < secondary.length; i++) {
-      if (secondary[i].classList.contains('text-white')) {
-        secondary[i].classList.remove('text-white');
-        secondary[i].classList.remove('opacity-8');
-        secondary[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < bg_gray_600.length; i++) {
-      if (bg_gray_600[i].classList.contains('bg-gray-600')) {
-        bg_gray_600[i].classList.remove('bg-gray-600');
-        bg_gray_600[i].classList.add('bg-gray-100');
-      }
-    }
-    for (var i = 0; i < svg.length; i++) {
-      if (svg[i].hasAttribute('fill')) {
-        svg[i].setAttribute('fill', '#252f40');
-      }
-    }
-    for (var i = 0; i < btn_text_white.length; i++) {
-      if (!btn_text_white[i].closest('.card.bg-gradient-dark')) {
-        btn_text_white[i].classList.remove('text-white');
-        btn_text_white[i].classList.add('text-dark');
-      }
-    }
-    for (var i = 0; i < card_border_dark.length; i++) {
-      card_border_dark[i].classList.remove('border-dark');
-    }
-    el.removeAttribute("checked");
-  }
-};
-
+// Apply the saved color and sidebar type when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    applySavedColor();
+    applySavedSidebarType();
+});
 
 // side bullets
 
